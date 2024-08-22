@@ -1,0 +1,7 @@
+data
+result
+node_modules
+.aider*
+prompt.md
+logs
+.env
