@@ -46,20 +46,34 @@
 
 ## Настройка параметров перевода
 
-Откройте файл `translateBook.ts` и настройте следующие параметры:
+1. Скопируйте файл `config.example.ts` и переименуйте его в `config.ts`.
+2. Откройте файл `config.ts` и настройте следующие параметры:
 
-- `targetLanguage`: язык перевода (например, "Russian")
-- `modelName`: модель для перевода (например, "anthropic/claude-3.5-sonnet")
-- `chunkSize`: размер фрагмента текста для перевода (по умолчанию 1000)
-- `pageFilter`: функция фильтрации страниц для перевода
+   - `targetLanguage`: язык перевода (например, "Russian")
+   - `modelName`: модель для перевода (например, "anthropic/claude-3.5-sonnet")
+   - `chunkSize`: размер фрагмента текста для перевода (по умолчанию 1000)
+   - `pageFilter`: функция фильтрации страниц для перевода
+
+   Пример конфигурации:
+
+   ```typescript
+   export const targetLanguage = "Russian";
+   export const modelName: ModelName = "anthropic/claude-3.5-sonnet";
+   export const chunkSize = 1000;
+
+   export const pageFilter = (section: { page: number; fileName: string }) =>
+     (section.page >= 1 && section.page < 100) ||
+     section.fileName.startsWith("chapter1");
+   ```
 
 ## Запуск программы
 
-Выполните следующую команду для запуска процесса перевода:
+1. Убедитесь, что вы создали и настроили файл `config.ts`.
+2. Выполните следующую команду для запуска процесса перевода:
 
-```
-npx ts-node translateBook.ts
-```
+   ```
+   npx ts-node translateBook.ts
+   ```
 
 ## Результаты
 

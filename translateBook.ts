@@ -13,10 +13,7 @@ import { placeTags } from "./utils/placeTags";
 import { cleanLogsFolder, logUserPrompt } from "./utils/logging";
 import { ModelName } from "./types";
 import { setTimeout } from "timers/promises";
-
-const targetLanguage = "Russian";
-const modelName: ModelName = "anthropic/claude-3.5-sonnet";
-const chunkSize = 1000;
+import { targetLanguage, modelName, chunkSize, pageFilter } from "./config";
 
 type ModelInfo = {
   [key in ModelName]: { shortName: string };
@@ -51,20 +48,6 @@ function appendOriginalChunk(
     { encoding: "utf-8" }
   );
 }
-
-const whiteList = [
-  "c6s1.md",
-  "c6s3.md",
-  "c6s5.md",
-  "c7s1.md",
-  "c7s2.md",
-  "c7s3.md",
-];
-
-const pageFilter = (section: Section) =>
-  (section.page >= 167 && section.page < 233) ||
-  whiteList.includes(section.fileName) ||
-  section.fileName.startsWith("c9");
 
 type Section = {
   title: string;

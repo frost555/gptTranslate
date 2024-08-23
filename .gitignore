@@ -5,3 +5,4 @@ node_modules
 prompt.md
 logs
 .env
+config.ts
