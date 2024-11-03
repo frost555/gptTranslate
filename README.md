@@ -83,36 +83,6 @@
 2. Оригинальные тексты будут сохранены в папке `result/kr/`.
 3. Логи запросов к API будут сохранены в папке `logs/`.
 
-## Запуск бота в Docker
+## TG Bot
 
-### Использование Docker Compose (рекомендуется)
-
-1. Убедитесь, что у вас установлены Docker и Docker Compose
-2. Создайте файл `.env` на основе `.env.example`
-3. Запустите бота с помощью команды:
-   ```bash
-   docker-compose up -d
-   ```
-4. Для просмотра логов используйте:
-   ```bash
-   docker-compose logs -f
-   ```
-5. Для остановки бота:
-   ```bash
-   docker-compose down
-   ```
-
-### Использование Docker напрямую
-
-1. Соберите образ:
-   ```bash
-   docker build -t translator-bot .
-   ```
-2. Запустите контейнер:
-   ```bash
-   docker run -d --env-file .env --name translator-bot translator-bot
-   ```
-
-## Примечание
-
-Убедитесь, что у вас достаточно средств на счету OpenRouter для выполнения перевода. Стоимость может варьироваться в зависимости от выбранной модели и объема текста.
+pm2 start npm --name "tgbot" -- run start-bot
