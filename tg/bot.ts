@@ -59,4 +59,5 @@ bot.on("message", async (ctx) => {
   }
 });
 
+console.log("Starting bot");
 bot.start();
