@@ -1,14 +1,5 @@
 import axios from "axios";
-import dotenv from "dotenv";
-import path from "path";
-import fs from "fs";
 import { ModelName } from "./types";
-
-const envLocalPath = path.resolve(__dirname, ".env.local");
-const envPath = path.resolve(__dirname, ".env");
-
-dotenv.config({ path: envLocalPath });
-dotenv.config({ path: envPath });
 
 // Definitions of subtypes are below
 type Request = {
@@ -121,7 +112,6 @@ export async function sendOpenrouter({
   modelName,
 }: SendOpenrouterArgs): Promise<string> {
   const apiKey = process.env.OPENROUTER_API_KEY;
-  console.log(apiKey);
 
   if (!apiKey) {
     throw new Error("API key is not set in the environment variables.");

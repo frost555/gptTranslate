@@ -4,7 +4,6 @@ import {
   appendChapterTitle,
   appendSectionTitle,
 } from "./utils/files";
-import { sendOpenrouter } from "./sendOpenrouter";
 import { getSystemPrompt, getPrompt } from "./generatePrompt";
 import * as path from "path";
 import * as fs from "fs";
@@ -12,8 +11,12 @@ import { prepareChunks } from "./utils/prepareChunks";
 import { placeTags } from "./utils/placeTags";
 import { cleanLogsFolder, logUserPrompt } from "./utils/logging";
 import { ModelName } from "./types";
-import { setTimeout } from "timers/promises";
 import { targetLanguage, modelName, chunkSize, pageFilter } from "./config";
+import { translateText } from "./utils/translateText";
+import dotenv from "dotenv";
+
+// Load environment variables
+dotenv.config();
 
 type ModelInfo = {
   [key in ModelName]: { shortName: string };
@@ -56,7 +59,7 @@ type Section = {
   chapter?: string;
 };
 
-const translateText = async (
+const translateBookText = async (
   main: string,
   before: string,
   after: string
@@ -71,33 +74,7 @@ const translateText = async (
 
   logUserPrompt(prompt);
 
-  let retries = 0;
-  const maxRetries = 5;
-  const retryDelay = 10000; // 10 seconds in milliseconds
-
-  while (retries < maxRetries) {
-    try {
-      const response = await sendOpenrouter({
-        systemPrompt,
-        prompt,
-        temperature: 0,
-        modelName: modelName,
-      });
-      return response;
-    } catch (error) {
-      console.error(`Attempt ${retries + 1} failed:`, error);
-      retries++;
-      if (retries < maxRetries) {
-        console.log(`Retrying in ${retryDelay / 1000} seconds...`);
-        await setTimeout(retryDelay);
-      } else {
-        console.error(`All ${maxRetries} attempts failed. Giving up.`);
-        throw error;
-      }
-    }
-  }
-
-  throw new Error("This line should never be reached");
+  return translateText(systemPrompt, prompt, modelName);
 };
 
 function getLastFiveSentences(text: string): string {
@@ -199,7 +176,7 @@ async function splitAndTranslateFile(args: SplitAndTranslateFileArgs) {
         i < originalChunks.length - 1
           ? getFirstFiveSentences(originalChunks[i + 1])
           : "";
-      const translatedChunk = await translateText(chunk, before, after);
+      const translatedChunk = await translateBookText(chunk, before, after);
 
       appendTranslatedChunk(resultFilePath, i, translatedChunk);
       appendOriginalChunk(resultOriginalPath, i, originalChunks[i]);
