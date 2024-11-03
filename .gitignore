@@ -6,3 +6,5 @@ prompt.md
 logs
 .env
 config.ts
+# Docker
+.docker/
