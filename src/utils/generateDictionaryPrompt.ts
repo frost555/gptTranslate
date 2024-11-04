@@ -1,4 +1,4 @@
-import { DictionaryItem } from "../types";
+import { DictionaryItem } from "../../types";
 
 type Options = {
   dictionary: DictionaryItem[];

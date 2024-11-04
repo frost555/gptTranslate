@@ -8,3 +8,4 @@ logs
 config.ts
 # Docker
 .docker/
+build/

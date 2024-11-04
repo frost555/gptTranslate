@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ModelName } from "./types";
+import { ModelName } from "../../types";
 
 // Definitions of subtypes are below
 type Request = {

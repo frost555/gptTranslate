@@ -10,8 +10,8 @@ import * as fs from "fs";
 import { prepareChunks } from "./utils/prepareChunks";
 import { placeTags } from "./utils/placeTags";
 import { cleanLogsFolder, logUserPrompt } from "./utils/logging";
-import { ModelName } from "./types";
-import { targetLanguage, modelName, chunkSize, pageFilter } from "./config";
+import { ModelName } from "../types";
+import { targetLanguage, modelName, chunkSize, pageFilter } from "../config";
 import { translateText } from "./utils/translateText";
 import dotenv from "dotenv";
 

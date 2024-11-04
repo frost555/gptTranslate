@@ -4,12 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start-bot": "npx --node-options='--max-old-space-size=100' ts-node tg/bot.ts",
+    "build": "npx swc ./src -d build",
+    "start-bot": "npx --node-options='--max-old-space-size=50' ts-node build/src/tg/bot.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@swc/cli": "^0.5.0",
+    "@swc/core": "^1.8.0",
     "@types/node": "^20.11.25",
     "prettier": "3.2.5"
   },

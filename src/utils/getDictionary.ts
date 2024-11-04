@@ -1,5 +1,5 @@
 import axios from "axios";
-import { DictionaryItem } from "../types";
+import { DictionaryItem } from "../../types";
 
 const dictionaryUrl =
   "https://raw.githubusercontent.com/frost555/gptTranslate/refs/heads/main/dictionary.json";

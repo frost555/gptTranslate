@@ -1,5 +1,5 @@
 import { generateDictionaryPrompt } from "../utils/generateDictionaryPrompt";
-import { DictionaryItem } from "../types";
+import { DictionaryItem } from "../../types";
 
 export function getSystemPrompt() {
   return `You are a professional translator with expertise in multiple languages. 

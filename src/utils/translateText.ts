@@ -1,6 +1,6 @@
-import { sendOpenrouter } from "../sendOpenrouter";
+import { sendOpenrouter } from "./sendOpenrouter";
 import { setTimeout } from "timers/promises";
-import { ModelName } from "../types";
+import { ModelName } from "../../types";
 
 export const translateText = async (
   systemPrompt: string,
