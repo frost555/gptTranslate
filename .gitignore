@@ -9,3 +9,4 @@ config.ts
 # Docker
 .docker/
 build/
+.idea

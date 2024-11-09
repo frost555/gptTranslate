@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "npx swc ./src -d build",
+    "start": "ts-node --transpile-only ./src/translateBook.ts",
     "start-bot": "npx --node-options='--max-old-space-size=50' ts-node build/src/tg/bot.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

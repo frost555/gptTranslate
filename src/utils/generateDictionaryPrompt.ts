@@ -19,5 +19,5 @@ export function generateDictionaryPrompt({
     })
     .join("\n");
 
-  return `Use these translations for specific terms if necessary:\n${dictionaryPrompt}\n`;
+  return `Use this dictionary if necessary:\n${dictionaryPrompt}\n`;
 }

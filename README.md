@@ -1,88 +1,71 @@
-# Программа для перевода книг
+# Book Translation Tool
 
-Эта программа предназначена для автоматического перевода книг с использованием API OpenRouter.
+This tool provides automated book translation using the OpenRouter API.
 
-## Подготовка к использованию
+## Setup
 
-1. Убедитесь, что у вас установлен Node.js и npm.
-2. Клонируйте репозиторий и перейдите в папку проекта.
-3. Установите зависимости, выполнив команду:
+1. Make sure you have Node.js and npm installed.
+2. Clone the repository and navigate to the project folder.
+3. Install dependencies by running:
    ```
    npm install
    ```
-4. Создайте файл `.env` в корневой папке проекта и добавьте в него ваш API ключ OpenRouter:
+4. Create a `.env` file in the project root and add your OpenRouter API key:
    ```
-   OPENROUTER_API_KEY=ваш_api_ключ_здесь
-   ```
-
-## Структура файлов и папок
-
-- `data/`: папка для исходных файлов
-  - `sections/`: папка с файлами разделов книги для перевода
-  - `toc.json`: файл с оглавлением книги
-- `result/`: папка для результатов перевода
-- `logs/`: папка для логов (создается автоматически)
-
-## Подготовка файлов для перевода
-
-1. Создайте папку `data/sections/` и поместите в нее файлы разделов книги в формате Markdown (.md).
-2. Создайте файл `data/toc.json` со структурой оглавления книги. Пример:
-   ```json
-   [
-     {
-       "title": "Название главы 1",
-       "page": 1,
-       "fileName": "c1.md",
-       "chapter": "Глава 1"
-     },
-     {
-       "title": "Название раздела 1.1",
-       "page": 2,
-       "fileName": "c1s1.md",
-       "chapter": "Глава 1"
-     }
-   ]
+   OPENROUTER_API_KEY=your_api_key_here
    ```
 
-## Настройка параметров перевода
+## File Structure
 
-1. Скопируйте файл `config.example.ts` и переименуйте его в `config.ts`.
-2. Откройте файл `config.ts` и настройте следующие параметры:
+- `data/`: source files directory
+  - Place your markdown files for translation directly in this folder
+- `result/`: translation results directory
+  - `[language]/claude/`: translated files
+  - `kr/`: original text files with chunk markers
+- `logs/`: request logs directory (created automatically)
 
-   - `targetLanguage`: язык перевода (например, "Russian")
-   - `modelName`: модель для перевода (например, "anthropic/claude-3.5-sonnet")
-   - `chunkSize`: размер фрагмента текста для перевода (по умолчанию 1000)
-   - `pageFilter`: функция фильтрации страниц для перевода
+## Configuration
 
-   Пример конфигурации:
+1. Create `config.ts` based on `config.example.ts`.
+2. Configure the following parameters:
+
+   - `targetLanguage`: target translation language ("Russian" or "English")
+   - `chunkSize`: text chunk size for translation (default: 600)
+   - `filesToTranslate`: array of markdown files to translate
+
+   Example configuration:
 
    ```typescript
-   export const targetLanguage = "Russian";
-   export const modelName: ModelName = "anthropic/claude-3.5-sonnet";
-   export const chunkSize = 1000;
-
-   export const pageFilter = (section: { page: number; fileName: string }) =>
-     (section.page >= 1 && section.page < 100) ||
-     section.fileName.startsWith("chapter1");
+   export const targetLanguage = "English";
+   export const chunkSize = 600;
+   
+   export const filesToTranslate = [
+     "example.md",
+   ];
    ```
 
-## Запуск программы
+## Running the Translation
 
-1. Убедитесь, что вы создали и настроили файл `config.ts`.
-2. Выполните следующую команду для запуска процесса перевода:
+1. Place your markdown files in the `data/` folder
+2. Make sure you've configured `config.ts`
+3. Run the translation process:
 
    ```
-   npx ts-node translateBook.ts
+   npx ts-node src/translateBook.ts
    ```
 
-## Результаты
+## Results
 
-После завершения работы программы:
+After the program completes:
 
-1. Переведенные файлы будут сохранены в папке `result/[язык]/[модель]/`.
-2. Оригинальные тексты будут сохранены в папке `result/kr/`.
-3. Логи запросов к API будут сохранены в папке `logs/`.
+1. Translated files will be saved in `result/[language]/claude/`
+2. Original texts with chunk markers will be saved in `result/kr/`
+3. API request logs will be saved in the `logs/` folder
 
-## TG Bot
+## Telegram Bot
 
+To run the Telegram bot:
+
+```
 pm2 start npm --name "tgbot" -- run start-bot
+```

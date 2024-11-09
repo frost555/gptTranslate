@@ -1,68 +1,48 @@
-import {
-  deleteFileIfExists,
-  createEmptyFile,
-  appendChapterTitle,
-  appendSectionTitle,
-} from "./utils/files";
+import { deleteFileIfExists, createEmptyFile } from "./utils/files";
 import { getSystemPrompt, getPrompt } from "./generatePrompt";
 import * as path from "path";
 import * as fs from "fs";
 import { prepareChunks } from "./utils/prepareChunks";
 import { placeTags } from "./utils/placeTags";
 import { cleanLogsFolder, logUserPrompt } from "./utils/logging";
-import { ModelName } from "../types";
-import { targetLanguage, modelName, chunkSize, pageFilter } from "../config";
+import { targetLanguage, chunkSize, filesToTranslate } from "../config";
+import { getDictionary } from "./utils/getDictionary";
 import { translateText } from "./utils/translateText";
 import dotenv from "dotenv";
+import { DictionaryItem } from "../types";
 
 // Load environment variables
 dotenv.config();
 
-type ModelInfo = {
-  [key in ModelName]: { shortName: string };
-};
-
-const models: ModelInfo = {
-  "deepseek/deepseek-chat": { shortName: "deepseek" },
-  "anthropic/claude-3.5-sonnet": { shortName: "claude" },
-  "meta-llama/llama-3.1-405b-instruct": { shortName: "llama" },
-};
-
 function appendTranslatedChunk(
   filePath: string,
   chunkIndex: number,
-  translatedChunk: string
+  translatedChunk: string,
 ): void {
   fs.appendFileSync(
     filePath,
     `<!-- ${chunkIndex + 1} -->\n\n${translatedChunk}\n\n`,
-    { encoding: "utf-8" }
+    { encoding: "utf-8" },
   );
 }
 
 function appendOriginalChunk(
   filePath: string,
   chunkIndex: number,
-  originalChunk: string
+  originalChunk: string,
 ): void {
   fs.appendFileSync(
     filePath,
     `\n <!-- ${chunkIndex + 1} -->  \n${originalChunk}\n`,
-    { encoding: "utf-8" }
+    { encoding: "utf-8" },
   );
 }
-
-type Section = {
-  title: string;
-  page: number;
-  fileName: string;
-  chapter?: string;
-};
 
 const translateBookText = async (
   main: string,
   before: string,
-  after: string
+  after: string,
+  dictionary: DictionaryItem[],
 ): Promise<string> => {
   const systemPrompt = getSystemPrompt(targetLanguage);
   const prompt = getPrompt({
@@ -70,11 +50,12 @@ const translateBookText = async (
     before,
     main,
     after,
+    dictionary,
   });
 
   logUserPrompt(prompt);
 
-  return translateText(systemPrompt, prompt, modelName);
+  return translateText(systemPrompt, prompt, "anthropic/claude-3.5-sonnet");
 };
 
 function getLastFiveSentences(text: string): string {
@@ -88,34 +69,33 @@ function getFirstFiveSentences(text: string): string {
 }
 
 type SplitAndTranslateFileArgs = {
-  tocFilePath: string;
-  sectionsFolder: string;
+  files: string[];
+  sourceFolder: string;
   resultFolder: string;
   resultOriginalFolder: string;
-  filter: (section: Section) => boolean;
+  targetLanguage: "Russian" | "English";
+  chunkSize: number;
 };
 
 async function splitAndTranslateFile(args: SplitAndTranslateFileArgs) {
   cleanLogsFolder();
 
   const {
-    tocFilePath,
-    sectionsFolder,
+    files,
+    sourceFolder,
     resultFolder,
     resultOriginalFolder,
-    filter,
+    targetLanguage,
+    chunkSize,
   } = args;
-  const tocData = fs.readFileSync(tocFilePath, "utf-8");
-  const toc: Section[] = JSON.parse(tocData);
 
-  const matchedSections = toc.filter(filter);
+  const dictionary = await getDictionary();
 
   const languageCode = targetLanguage.toLowerCase();
-  const modelShortName = models[modelName].shortName;
   const translatedResultFolder = path.join(
     resultFolder,
     languageCode,
-    modelShortName
+    "claude",
   );
 
   // Ensure the translated result folder exists
@@ -123,45 +103,20 @@ async function splitAndTranslateFile(args: SplitAndTranslateFileArgs) {
     fs.mkdirSync(translatedResultFolder, { recursive: true });
   }
 
-  for (let section of matchedSections) {
-    const resultFilePath = path.join(translatedResultFolder, section.fileName);
-    const resultOriginalPath = path.join(
-      resultOriginalFolder,
-      section.fileName
-    );
-
-    const ix = toc.findIndex((x) => x === section);
-    const finalPage = toc[ix + 1]?.page ?? 99999;
+  for (let fileName of files) {
+    const resultFilePath = path.join(translatedResultFolder, fileName);
+    const resultOriginalPath = path.join(resultOriginalFolder, fileName);
 
     console.log(resultFilePath);
 
-    deleteFileIfExists(resultFilePath); // Check if the result file already exists; if so, delete it.
-    createEmptyFile(resultFilePath); // Create an empty file at the specified result file path with UTF-8 encoding.
-
-    // Check if the section's chapter title is the same as its own title.
-    if (section.chapter === section.title) {
-      appendSectionTitle(
-        resultFilePath,
-        { title: section.title, page: section.page },
-        finalPage
-      ); // Append the chapter title and page range to the file.
-    } else {
-      appendChapterTitle(resultFilePath, section); // If there is a chapter, append it with a newline at the beginning of the file.
-      appendSectionTitle(
-        resultFilePath,
-        { title: section.title, page: section.page },
-        finalPage
-      ); // Append the section title and page range to the file with a newline at the beginning.
-    }
+    deleteFileIfExists(resultFilePath);
+    createEmptyFile(resultFilePath);
 
     createEmptyFile(resultOriginalPath);
 
-    const pageContent = fs.readFileSync(
-      path.join(sectionsFolder, section.fileName),
-      {
-        encoding: "utf-8",
-      }
-    );
+    const pageContent = fs.readFileSync(path.join(sourceFolder, fileName), {
+      encoding: "utf-8",
+    });
 
     const originalChunks = prepareChunks(pageContent, chunkSize);
     const chunks = originalChunks.map((x) => placeTags(x));
@@ -176,7 +131,12 @@ async function splitAndTranslateFile(args: SplitAndTranslateFileArgs) {
         i < originalChunks.length - 1
           ? getFirstFiveSentences(originalChunks[i + 1])
           : "";
-      const translatedChunk = await translateBookText(chunk, before, after);
+      const translatedChunk = await translateBookText(
+        chunk,
+        before,
+        after,
+        dictionary,
+      );
 
       appendTranslatedChunk(resultFilePath, i, translatedChunk);
       appendOriginalChunk(resultOriginalPath, i, originalChunks[i]);
@@ -186,21 +146,33 @@ async function splitAndTranslateFile(args: SplitAndTranslateFileArgs) {
 
     console.log(
       "Translation and concatenation complete. Result saved to",
-      resultFilePath
+      resultFilePath,
     );
   }
 }
 
-const sourceFolder = path.join(__dirname, "data", "sections");
-const resultFolder = path.join(__dirname, "result");
-const resultKrFolder = path.join(__dirname, "result", "kr");
-const tocFilePath = path.join(__dirname, "data", "toc.json");
+const sourceFolder = path.join("data");
+const resultFolder = path.join("result");
+const resultKrFolder = path.join("result", "kr");
 
-// Execute the function with your folder paths and filter function
-splitAndTranslateFile({
-  tocFilePath,
-  sectionsFolder: sourceFolder,
-  resultFolder,
-  resultOriginalFolder: resultKrFolder,
-  filter: pageFilter,
-});
+function ensureResultFoldersExist(folders: string[]) {
+  folders.forEach((folder) => {
+    if (!fs.existsSync(folder)) {
+      fs.mkdirSync(folder, { recursive: true });
+    }
+  });
+}
+
+async function run() {
+  ensureResultFoldersExist([resultFolder, resultKrFolder]);
+  await splitAndTranslateFile({
+    files: filesToTranslate,
+    sourceFolder,
+    resultFolder,
+    resultOriginalFolder: resultKrFolder,
+    targetLanguage,
+    chunkSize,
+  });
+}
+
+run();

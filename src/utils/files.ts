@@ -25,7 +25,7 @@ export function createEmptyFile(filePath: string): void {
  */
 export function appendChapterTitle(
   filePath: string,
-  section: { chapter?: string; title: string }
+  section: { chapter?: string; title: string },
 ): void {
   if (section.chapter) {
     fs.appendFileSync(filePath, "# " + section.chapter + "\n\n", {
@@ -43,11 +43,11 @@ export function appendChapterTitle(
 export function appendSectionTitle(
   filePath: string,
   section: { title: string; page: number },
-  finalPage: number
+  finalPage: number,
 ): void {
   fs.appendFileSync(
     filePath,
     "## " + section.title + `(page ${section.page}-${finalPage - 1})` + "\n\n",
-    { encoding: "utf-8" } // Specify the encoding as UTF-8.
+    { encoding: "utf-8" }, // Specify the encoding as UTF-8.
   );
 }

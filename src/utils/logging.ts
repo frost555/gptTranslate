@@ -4,7 +4,7 @@ import * as path from "path";
 let requestNumber = 0;
 
 export function cleanLogsFolder() {
-  const logsFolder = path.join(__dirname, '..', 'logs');
+  const logsFolder = path.join("logs");
   if (fs.existsSync(logsFolder)) {
     fs.readdirSync(logsFolder).forEach((file) => {
       const filePath = path.join(logsFolder, file);
@@ -16,7 +16,7 @@ export function cleanLogsFolder() {
 }
 
 export function logUserPrompt(prompt: string) {
-  const logsFolder = path.join(__dirname, '..', 'logs');
+  const logsFolder = path.join("logs");
   const logFile = path.join(logsFolder, `${++requestNumber}.txt`);
-  fs.writeFileSync(logFile, prompt, 'utf-8');
+  fs.writeFileSync(logFile, prompt, "utf-8");
 }

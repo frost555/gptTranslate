@@ -13,7 +13,7 @@ Output:
 `;
 
 export function getSystemPrompt(
-  targetLanguage: "Russian" | "English" = "Russian"
+  targetLanguage: "Russian" | "English" = "Russian",
 ) {
   return `You are a professional translator with expertise in multiple languages. 
   Your task is to translate text from a source language to a target language, maintaining the original tone, style, and meaning as closely as possible. 
@@ -21,11 +21,15 @@ export function getSystemPrompt(
   `;
 }
 
+import { DictionaryItem } from "../types";
+import { generateDictionaryPrompt } from "./utils/generateDictionaryPrompt";
+
 type Options = {
   targetLanguage: "Russian" | "English";
   before?: string;
   main: string;
   after?: string;
+  dictionary: DictionaryItem[];
 };
 
 export function getPrompt({
@@ -33,6 +37,7 @@ export function getPrompt({
   before,
   main,
   after,
+  dictionary,
 }: Options) {
   const example =
     targetLanguage === "Russian" ? russianExpected : englishExpected;
@@ -43,6 +48,7 @@ Translate the following text from Korean to ${targetLanguage}. Follow these inst
 1. Translate only the text within the <main_text> tags.
 2. Use the content in <context_before> and <context_after> tags to ensure consistency in terminology, style, and context.
 3. Text can contain chinese characters within <o></o> tags. Do not remove them from translation result.
+4. ${generateDictionaryPrompt({ dictionary, text: main })}
 
 Example of requirement 3:
 ${example}

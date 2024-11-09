@@ -5,7 +5,7 @@ import { ModelName } from "../../types";
 export const translateText = async (
   systemPrompt: string,
   prompt: string,
-  modelName: ModelName = "anthropic/claude-3.5-sonnet"
+  modelName: ModelName = "anthropic/claude-3.5-sonnet",
 ): Promise<string> => {
   let retries = 0;
   const maxRetries = 5;
