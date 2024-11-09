@@ -24,6 +24,33 @@ export function getSystemPrompt(
 import { DictionaryItem } from "../types";
 import { generateDictionaryPrompt } from "./utils/generateDictionaryPrompt";
 
+function getTranslationRules({ before, after, dictionary, main }: {
+  before?: string;
+  after?: string;
+  dictionary: DictionaryItem[];
+  main: string;
+}): string {
+  const baseRules = [
+    "Translate only the text within the <main_text> tags.",
+    "Text can contain chinese characters within <o></o> tags. Do not remove them from translation result.",
+  ];
+
+  if (before || after) {
+    const contextTags = [
+      before && '<context_before>',
+      after && '<context_after>'
+    ].filter(Boolean).join(' and ');
+    
+    baseRules.push(`Use the content in ${contextTags} tags to ensure consistency in terminology, style, and context.`);
+  }
+
+  baseRules.push(generateDictionaryPrompt({ dictionary, text: main }));
+
+  return baseRules
+    .map((rule, index) => `${index + 1}. ${rule}`)
+    .join('\n');
+}
+
 type Options = {
   targetLanguage: "Russian" | "English";
   before?: string;
@@ -42,28 +69,21 @@ export function getPrompt({
   const example =
     targetLanguage === "Russian" ? russianExpected : englishExpected;
 
+  const rules = getTranslationRules({ before, after, dictionary, main });
+
   return `
 Translate the following text from Korean to ${targetLanguage}. Follow these instructions:
 
-1. Translate only the text within the <main_text> tags.
-2. Use the content in <context_before> and <context_after> tags to ensure consistency in terminology, style, and context.
-3. Text can contain chinese characters within <o></o> tags. Do not remove them from translation result.
-4. ${generateDictionaryPrompt({ dictionary, text: main })}
+${rules}
 
-Example of requirement 3:
+Example of requirement 2:
 ${example}
 
-<context_before>
-${before}
-</context_before>
-
+${before ? `<context_before>\n${before}\n</context_before>\n\n` : ''}
 <main_text>
 ${main}
 </main_text>
-
-<context_after>
-${after}
-</context_after>
+${after ? `\n\n<context_after>\n${after}\n</context_after>` : ''}
 
 Provide translation of the <main_text>`;
 }
