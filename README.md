@@ -1,3 +1,5 @@
+Hello
+
 # Book Translation Tool
 
 This tool provides automated book translation using the OpenRouter API.
@@ -38,10 +40,8 @@ This tool provides automated book translation using the OpenRouter API.
    ```typescript
    export const targetLanguage = "English";
    export const chunkSize = 600;
-   
-   export const filesToTranslate = [
-     "example.md",
-   ];
+
+   export const filesToTranslate = ["example.md"];
    ```
 
 ## Running the Translation
