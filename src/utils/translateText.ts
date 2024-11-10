@@ -1,11 +1,11 @@
-import { sendOpenrouter } from "./sendOpenrouter";
-import { setTimeout } from "timers/promises";
-import { ModelName } from "../../types";
+import { sendOpenrouter } from './sendOpenrouter';
+import { setTimeout } from 'timers/promises';
+import { ModelName } from '../../types';
 
 export const translateText = async (
   systemPrompt: string,
   prompt: string,
-  modelName: ModelName = "anthropic/claude-3.5-sonnet",
+  modelName: ModelName = 'anthropic/claude-3.5-sonnet',
 ): Promise<string> => {
   let retries = 0;
   const maxRetries = 5;
@@ -33,5 +33,5 @@ export const translateText = async (
     }
   }
 
-  throw new Error("This line should never be reached");
+  throw new Error('This line should never be reached');
 };

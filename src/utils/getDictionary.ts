@@ -1,8 +1,8 @@
-import axios from "axios";
-import { DictionaryItem } from "../../types";
+import axios from 'axios';
+import { DictionaryItem } from '../../types';
 
 const dictionaryUrl =
-  "https://raw.githubusercontent.com/frost555/gptTranslate/refs/heads/main/dictionary.json";
+  'https://raw.githubusercontent.com/frost555/gptTranslate/refs/heads/main/dictionary.json';
 
 export async function getDictionary(): Promise<DictionaryItem[]> {
   try {
@@ -17,7 +17,7 @@ export async function getDictionary(): Promise<DictionaryItem[]> {
       };
     });
   } catch (error) {
-    console.error("Error fetching dictionary:", error);
+    console.error('Error fetching dictionary:', error);
     return [];
   }
 }

@@ -5,7 +5,7 @@ export function prepareChunks(text: string, maxChunkLength: number): string[] {
   while (currentText.length > maxChunkLength) {
     let lastPeriod = currentText
       .substring(0, maxChunkLength + 1)
-      .lastIndexOf(".");
+      .lastIndexOf('.');
 
     // Check if there's a period within the limit of maxChunkLength
     if (lastPeriod > -1 && lastPeriod <= maxChunkLength) {
@@ -16,7 +16,7 @@ export function prepareChunks(text: string, maxChunkLength: number): string[] {
       // If no period is found, cut at maxChunkLength
       let spaceBeforeMax = currentText
         .substring(0, maxChunkLength)
-        .lastIndexOf(" ");
+        .lastIndexOf(' ');
       if (spaceBeforeMax > -1) {
         chunks.push(currentText.substring(0, spaceBeforeMax).trim());
         currentText = currentText.substring(spaceBeforeMax).trim();

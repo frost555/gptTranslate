@@ -1,5 +1,5 @@
-import axios from "axios";
-import { ModelName } from "../../types";
+import axios from 'axios';
+import { ModelName } from '../../types';
 
 // Definitions of subtypes are below
 type Request = {
@@ -15,7 +15,7 @@ type Request = {
   // providers on the model page on openrouter.ai/models to see if it's supported,
   // and set `require_parameters` to true in your Provider Preferences. See
   // openrouter.ai/docs/provider-routing
-  response_format?: { type: "json_object" };
+  response_format?: { type: 'json_object' };
 
   stop?: string | string[];
   stream?: boolean; // Enable streaming
@@ -46,7 +46,7 @@ type Request = {
   transforms?: string[];
   // See "Model Routing" section: openrouter.ai/docs/model-routing
   models?: string[];
-  route?: "fallback";
+  route?: 'fallback';
   // See "Provider Routing" section: openrouter.ai/docs/provider-routing
   provider?: unknown;
 };
@@ -54,12 +54,12 @@ type Request = {
 // Subtypes:
 
 type TextContent = {
-  type: "text";
+  type: 'text';
   text: string;
 };
 
 type ImageContentPart = {
-  type: "image_url";
+  type: 'image_url';
   image_url: {
     url: string; // URL or base64 encoded image data
     detail?: string; // Optional, defaults to 'auto'
@@ -69,7 +69,7 @@ type ImageContentPart = {
 type ContentPart = TextContent | ImageContentPart;
 
 type Message = {
-  role: "user" | "assistant" | "system" | "tool";
+  role: 'user' | 'assistant' | 'system' | 'tool';
   // ContentParts are only for the 'user' role:
   content: string | ContentPart[];
   // If "name" is included, it will be prepended like this
@@ -84,15 +84,15 @@ type FunctionDescription = {
 };
 
 type Tool = {
-  type: "function";
+  type: 'function';
   function: FunctionDescription;
 };
 
 type ToolChoice =
-  | "none"
-  | "auto"
+  | 'none'
+  | 'auto'
   | {
-      type: "function";
+      type: 'function';
       function: {
         name: string;
       };
@@ -114,19 +114,19 @@ export async function sendOpenrouter({
   const apiKey = process.env.OPENROUTER_API_KEY;
 
   if (!apiKey) {
-    throw new Error("API key is not set in the environment variables.");
+    throw new Error('API key is not set in the environment variables.');
   }
 
-  const url = "https://openrouter.ai/api/v1/chat/completions";
+  const url = 'https://openrouter.ai/api/v1/chat/completions';
   const headers = {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
     Authorization: `Bearer ${apiKey}`,
   };
 
   const data: Request = {
     messages: [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: prompt },
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: prompt },
     ],
     temperature,
     model: modelName,
@@ -143,10 +143,10 @@ export async function sendOpenrouter({
     ) {
       return response.data.choices[0].message.content;
     } else {
-      throw new Error("Unexpected response format from OpenRouter API");
+      throw new Error('Unexpected response format from OpenRouter API');
     }
   } catch (error) {
-    console.error("Error sending request to OpenRouter API:", error);
+    console.error('Error sending request to OpenRouter API:', error);
     throw error;
   }
 }

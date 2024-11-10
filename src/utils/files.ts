@@ -1,4 +1,4 @@
-import * as fs from "fs";
+import * as fs from 'fs';
 
 /**
  * Deletes a file if it exists at the specified path.
@@ -15,7 +15,7 @@ export function deleteFileIfExists(filePath: string): void {
  * @param filePath - The path where the file will be created.
  */
 export function createEmptyFile(filePath: string): void {
-  fs.writeFileSync(filePath, "", { encoding: "utf-8" }); // Specify the encoding as UTF-8.
+  fs.writeFileSync(filePath, '', { encoding: 'utf-8' }); // Specify the encoding as UTF-8.
 }
 
 /**
@@ -28,8 +28,8 @@ export function appendChapterTitle(
   section: { chapter?: string; title: string },
 ): void {
   if (section.chapter) {
-    fs.appendFileSync(filePath, "# " + section.chapter + "\n\n", {
-      encoding: "utf-8",
+    fs.appendFileSync(filePath, '# ' + section.chapter + '\n\n', {
+      encoding: 'utf-8',
     });
   }
 }
@@ -47,7 +47,7 @@ export function appendSectionTitle(
 ): void {
   fs.appendFileSync(
     filePath,
-    "## " + section.title + `(page ${section.page}-${finalPage - 1})` + "\n\n",
-    { encoding: "utf-8" }, // Specify the encoding as UTF-8.
+    '## ' + section.title + `(page ${section.page}-${finalPage - 1})` + '\n\n',
+    { encoding: 'utf-8' }, // Specify the encoding as UTF-8.
   );
 }

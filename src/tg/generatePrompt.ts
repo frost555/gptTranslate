@@ -1,5 +1,5 @@
-import { generateDictionaryPrompt } from "../utils/generateDictionaryPrompt";
-import { DictionaryItem } from "../../types";
+import { generateDictionaryPrompt } from '../utils/generateDictionaryPrompt';
+import { DictionaryItem } from '../../types';
 
 export function getSystemPrompt() {
   return `You are a professional translator with expertise in multiple languages. 
@@ -7,13 +7,13 @@ Your task is to translate text from a source language to a target language, main
 }
 
 type Options = {
-  targetLanguage: "Russian" | "English";
+  targetLanguage: 'Russian' | 'English';
   text: string;
   dictionary: DictionaryItem[];
 };
 
 export function getPrompt({
-  targetLanguage = "Russian",
+  targetLanguage = 'Russian',
   text,
   dictionary,
 }: Options) {

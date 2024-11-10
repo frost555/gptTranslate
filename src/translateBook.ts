@@ -1,15 +1,15 @@
-import { deleteFileIfExists, createEmptyFile } from "./utils/files";
-import { getSystemPrompt, getPrompt } from "./generatePrompt";
-import * as path from "path";
-import * as fs from "fs";
-import { prepareChunks } from "./utils/prepareChunks";
-import { placeTags } from "./utils/placeTags";
-import { cleanLogsFolder, logUserPrompt } from "./utils/logging";
-import { targetLanguage, chunkSize, filesToTranslate } from "../config";
-import { getDictionary } from "./utils/getDictionary";
-import { translateText } from "./utils/translateText";
-import dotenv from "dotenv";
-import { DictionaryItem } from "../types";
+import { deleteFileIfExists, createEmptyFile } from './utils/files';
+import { getSystemPrompt, getPrompt } from './generatePrompt';
+import * as path from 'path';
+import * as fs from 'fs';
+import { prepareChunks } from './utils/prepareChunks';
+import { placeTags } from './utils/placeTags';
+import { cleanLogsFolder, logUserPrompt } from './utils/logging';
+import { targetLanguage, chunkSize, filesToTranslate } from '../config';
+import { readDictionary } from './utils/readDictionary';
+import { translateText } from './utils/translateText';
+import dotenv from 'dotenv';
+import { DictionaryItem } from '../types';
 
 // Load environment variables
 dotenv.config();
@@ -22,7 +22,7 @@ function appendTranslatedChunk(
   fs.appendFileSync(
     filePath,
     `<!-- ${chunkIndex + 1} -->\n\n${translatedChunk}\n\n`,
-    { encoding: "utf-8" },
+    { encoding: 'utf-8' },
   );
 }
 
@@ -34,7 +34,7 @@ function appendOriginalChunk(
   fs.appendFileSync(
     filePath,
     `\n <!-- ${chunkIndex + 1} -->  \n${originalChunk}\n`,
-    { encoding: "utf-8" },
+    { encoding: 'utf-8' },
   );
 }
 
@@ -55,17 +55,17 @@ const translateBookText = async (
 
   logUserPrompt(prompt);
 
-  return translateText(systemPrompt, prompt, "anthropic/claude-3.5-sonnet");
+  return translateText(systemPrompt, prompt, 'anthropic/claude-3.5-sonnet');
 };
 
 function getLastFiveSentences(text: string): string {
   const sentences = text.match(/[^.]+[.]+/g) || [];
-  return sentences.slice(-5).join(" ").trim();
+  return sentences.slice(-5).join(' ').trim();
 }
 
 function getFirstFiveSentences(text: string): string {
   const sentences = text.match(/[^.]+[.]+/g) || [];
-  return sentences.slice(0, 5).join(" ").trim();
+  return sentences.slice(0, 5).join(' ').trim();
 }
 
 type SplitAndTranslateFileArgs = {
@@ -73,7 +73,7 @@ type SplitAndTranslateFileArgs = {
   sourceFolder: string;
   resultFolder: string;
   resultOriginalFolder: string;
-  targetLanguage: "Russian" | "English";
+  targetLanguage: 'Russian' | 'English';
   chunkSize: number;
 };
 
@@ -89,13 +89,13 @@ async function splitAndTranslateFile(args: SplitAndTranslateFileArgs) {
     chunkSize,
   } = args;
 
-  const dictionary = await getDictionary();
+  const dictionary = readDictionary();
 
   const languageCode = targetLanguage.toLowerCase();
   const translatedResultFolder = path.join(
     resultFolder,
     languageCode,
-    "claude",
+    'claude',
   );
 
   // Ensure the translated result folder exists
@@ -115,22 +115,22 @@ async function splitAndTranslateFile(args: SplitAndTranslateFileArgs) {
     createEmptyFile(resultOriginalPath);
 
     const pageContent = fs.readFileSync(path.join(sourceFolder, fileName), {
-      encoding: "utf-8",
+      encoding: 'utf-8',
     });
 
     const originalChunks = prepareChunks(pageContent, chunkSize);
-    const chunks = originalChunks.map((x) => placeTags(x));
+    const chunks = originalChunks; // originalChunks.map((x) => placeTags(x));
 
     console.log(chunks.map((x) => x.length));
 
     for (let i = 0; i < chunks.length; ++i) {
       const chunk = chunks[i];
 
-      const before = i > 0 ? getLastFiveSentences(originalChunks[i - 1]) : "";
+      const before = i > 0 ? getLastFiveSentences(originalChunks[i - 1]) : '';
       const after =
         i < originalChunks.length - 1
           ? getFirstFiveSentences(originalChunks[i + 1])
-          : "";
+          : '';
       const translatedChunk = await translateBookText(
         chunk,
         before,
@@ -145,15 +145,15 @@ async function splitAndTranslateFile(args: SplitAndTranslateFileArgs) {
     }
 
     console.log(
-      "Translation and concatenation complete. Result saved to",
+      'Translation and concatenation complete. Result saved to',
       resultFilePath,
     );
   }
 }
 
-const sourceFolder = path.join("data");
-const resultFolder = path.join("result");
-const resultKrFolder = path.join("result", "kr");
+const sourceFolder = path.join('data');
+const resultFolder = path.join('result');
+const resultKrFolder = path.join('result', 'kr');
 
 function ensureResultFoldersExist(folders: string[]) {
   folders.forEach((folder) => {

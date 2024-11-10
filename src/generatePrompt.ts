@@ -13,7 +13,7 @@ Output:
 `;
 
 export function getSystemPrompt(
-  targetLanguage: "Russian" | "English" = "Russian",
+  targetLanguage: 'Russian' | 'English' = 'Russian',
 ) {
   return `You are a professional translator with expertise in multiple languages. 
   Your task is to translate text from a source language to a target language, maintaining the original tone, style, and meaning as closely as possible. 
@@ -21,38 +21,42 @@ export function getSystemPrompt(
   `;
 }
 
-import { DictionaryItem } from "../types";
-import { generateDictionaryPrompt } from "./utils/generateDictionaryPrompt";
+import { DictionaryItem } from '../types';
+import { generateDictionaryPrompt } from './utils/generateDictionaryPrompt';
 
-function getTranslationRules({ before, after, dictionary, main }: {
+function getTranslationRules({
+  before,
+  after,
+  dictionary,
+  main,
+}: {
   before?: string;
   after?: string;
   dictionary: DictionaryItem[];
   main: string;
 }): string {
-  const baseRules = [
-    "Translate only the text within the <main_text> tags.",
-    "Text can contain chinese characters within <o></o> tags. Do not remove them from translation result.",
-  ];
+  const baseRules = ['Translate only the text within the <main_text> tags.'];
 
   if (before || after) {
     const contextTags = [
       before && '<context_before>',
-      after && '<context_after>'
-    ].filter(Boolean).join(' and ');
-    
-    baseRules.push(`Use the content in ${contextTags} tags to ensure consistency in terminology, style, and context.`);
+      after && '<context_after>',
+    ]
+      .filter(Boolean)
+      .join(' and ');
+
+    baseRules.push(
+      `Use the content in ${contextTags} tags to ensure consistency in terminology, style, and context.`,
+    );
   }
 
   baseRules.push(generateDictionaryPrompt({ dictionary, text: main }));
 
-  return baseRules
-    .map((rule, index) => `${index + 1}. ${rule}`)
-    .join('\n');
+  return baseRules.map((rule, index) => `${index + 1}. ${rule}`).join('\n');
 }
 
 type Options = {
-  targetLanguage: "Russian" | "English";
+  targetLanguage: 'Russian' | 'English';
   before?: string;
   main: string;
   after?: string;
@@ -60,14 +64,14 @@ type Options = {
 };
 
 export function getPrompt({
-  targetLanguage = "Russian",
+  targetLanguage = 'Russian',
   before,
   main,
   after,
   dictionary,
 }: Options) {
   const example =
-    targetLanguage === "Russian" ? russianExpected : englishExpected;
+    targetLanguage === 'Russian' ? russianExpected : englishExpected;
 
   const rules = getTranslationRules({ before, after, dictionary, main });
 
@@ -75,9 +79,6 @@ export function getPrompt({
 Translate the following text from Korean to ${targetLanguage}. Follow these instructions:
 
 ${rules}
-
-Example of requirement 2:
-${example}
 
 ${before ? `<context_before>\n${before}\n</context_before>\n\n` : ''}
 <main_text>

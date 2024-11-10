@@ -1,4 +1,4 @@
-import { DictionaryItem } from "../../types";
+import { DictionaryItem } from '../../types';
 
 type Options = {
   dictionary: DictionaryItem[];
@@ -17,7 +17,7 @@ export function generateDictionaryPrompt({
       const base = `${item.term} - ${item.translation}`;
       return item.explanation ? `${base} (${item.explanation})` : base;
     })
-    .join("\n");
+    .join('\n');
 
   return `Use this dictionary if necessary:\n${dictionaryPrompt}\n`;
 }
