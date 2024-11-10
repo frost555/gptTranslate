@@ -51,7 +51,7 @@ This tool provides automated book translation using the OpenRouter API.
 3. Run the translation process:
 
    ```
-   npx ts-node src/translateBook.ts
+   npm run start
    ```
 
 ## Results
